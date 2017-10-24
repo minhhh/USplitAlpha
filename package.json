@@ -1,0 +1,23 @@
+{
+  "name": "USplitAlpha",
+  "version": "0.0.1",
+  "description": "USplitAlpha is a library that helps you apply Split Alpha texture to both Android and iOS easily",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "Assets"
+  ],
+  "scripts": {
+    "postinstall": "node index.js",
+    "unity": "rm -fr node_modules && DIR=`pwd` yarn install --flat --prod --verbose"
+  },
+  "dependencies": {
+    "minimist": "ssh://github.com/substack/minimist.git#0.0.8",
+    "mkdirp": "ssh://github.com/substack/node-mkdirp.git#0.5.1",
+    "ncp": "ssh://github.com/AvianFlu/ncp.git#v2.0.0"
+  },
+  "devDependencies": {
+    "UBootstrap.SpriteCollection": "ssh://github.com/minhhh/UBootstrap.SpriteCollection#v0.0.3",
+    "SimpleSpritePacker": "ssh://github.com/minhhh/SimpleSpritePacker#v0.0.1"
+  }
+}
