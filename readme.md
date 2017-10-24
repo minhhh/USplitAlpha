@@ -89,7 +89,15 @@ The code for the ogiginal shaders was taken from Unity then modified to support 
 
 Obviously, the workflow so far is a little laborious. You have to create split alpha textures by hand, create materials by hand, apply material to UI elements by hand. There are so many improvements that can be made to automate all of these tasks better. In fact, all of these improvements have been implemented and applied to production but I cannot share the code.
 
-**Improvement 1: Automatic material creation**
+**Improvement 1: Put hard-coded configurable parameters in global settings**
+
+Currently, the compression quality is hard-coded. We should put all configurable parameters in a single ScriptableObject.
+
+**Improvement 2: Make it work with Unity SpritePacker**
+
+This is quite straightforward. When you create split alpha texture, you have to copy all settings from the original texture `TextureImporter`, except for the packing tag. You will add a prefix or suffix to the original packing tag instead. Then you have to change `PackerPolicy` by creating a custom `PackerPolicy`, so that the generated Atlas will use `ETC1 RGB4bit` or `PVRTC RGB4bit` compression.
+
+**Improvement 3: Automatic material creation**
 
 This is how you implement:
 
@@ -101,7 +109,7 @@ This is how you implement:
 
 Now you can simply assign sprites to different visual elements, then set all of those sprites to use the same packing tag and voila, all your visual elements can batch and use Split Alpha. However, this approach can NOT work with AssetBundle.
 
-**Improvement 2: Add Helper Component to GameObject automatically**
+**Improvement 4: Add Helper Component to GameObject automatically**
 
 There is still one manual step that you have to do in **Improvement 1**, that is adding the correct MonoBehaviour to the correct GameObject. We can automate this step like so:
 
@@ -111,23 +119,25 @@ There is still one manual step that you have to do in **Improvement 1**, that is
 
 Also add a Revert function to revert the change easily.
 
-**Improvement 3: Create Split Alpha material automatically**
+**Improvement 5: Create Split Alpha material automatically**
 
 Create a tool so that users only have to set the main texture, the alpha texture will be filled in automatically by searching in `_alpha` folder.
 
-**Improvement 4: Reduce the size of Alpha mask**
+**Improvement 6: Reduce the size of Alpha mask**
 
 If the alpha mask of a texture is very simple, for instance, it's mostly white pixels or smooth gradation, then it can be downsized to 1/4 or 1/16 of the area of original texture. Then it can be used by expanding it with a bilinear filter.
 
-**Improvement 5: Make a configuration**
-
-Currently, the compression quality is hard-coded. We should put all configurable parameters in a single ScriptableObject.
 
 ## Install
 
 To include USplitAlpha into your project, you can copy `Assets/Plugins/USplitAlpha` to your project folder. Alternatively, you can use `npm` method of package management described [here](https://github.com/minhhh/UBootstrap).
 
 ## Changelog
+
+**0.0.2**
+
+* Create namespace `USplitAlpha`
+* Improve readme
 
 **0.0.1**
 
