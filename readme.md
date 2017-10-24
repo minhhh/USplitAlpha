@@ -1,19 +1,19 @@
 # USplitAlpha
 
-> Split Alpha for Android and iOS
+> Split Alpha channel for Android and iOS
 
-According to a survey ([Unity Texture compression and optimization](http://minhhh.github.io/posts/unity-texture-compression-and-optimization)) about various different texture formats in Unity, `ETC` and Split Alpha channel provides the best build size and memory footprint. As mentioned [here](https://feedback.unity3d.com/suggestions/pvrtc-rgb-4bit-plus-alpha-split-texture-compression-dot-dot-dot), Unity currently does not support SplitAlpha on iOS and there was a bug on UI images in older version.
+According to a survey ([Unity Texture compression and optimization](http://minhhh.github.io/posts/unity-texture-compression-and-optimization)) about various different texture formats in Unity, `ETC1` and Split Alpha channel provides the best build size and memory footprint. As mentioned [here](https://feedback.unity3d.com/suggestions/pvrtc-rgb-4bit-plus-alpha-split-texture-compression-dot-dot-dot), Unity currently does not support SplitAlpha on iOS and there was a bug that makes it not work on UI in older versions.
 
 `USplitAlpha` is a library that helps you apply Split Alpha texture to both Android and iOS easily. On Android it uses `ETC1 RGB4bit` both main texture and alpha texture. On iOS is uses `PVRTC RGB4bit`.
 
-This inspiration for this library is drawn from [https://github.com/keijiro/unity-alphamask](https://github.com/keijiro/unity-alphamask) and [Unity、Mobile端末向けの画一的なテクスチャ圧縮方法](https://web.archive.org/web/20160726041743/http://developers.mobage.jp/blog/texture-compression)
+The inspiration for this library is drawn from [https://github.com/keijiro/unity-alphamask](https://github.com/keijiro/unity-alphamask) and [Unity、Mobile端末向けの画一的なテクスチャ圧縮方法](https://web.archive.org/web/20160726041743/http://developers.mobage.jp/blog/texture-compression)
 
 ## Usage
-To apply USplitAlpha into your project, there are 3 main steps
+To apply USplitAlpha into your project, there are 3 main steps:
 
 1. Create Split Alpha textures from the original textures
-2. Create Material that uses Split Alpha
-3. Apply material to `UI Image`, `UI Raw Image` or `Sprite`.
+2. Create materials that uses Split Alpha
+3. Apply materials to `UI Image`, `UI Raw Image` or `Sprite`.
 
 **Step 1: Create Split Alpha textures from the original textures**
 
@@ -41,15 +41,19 @@ To apply USplitAlpha into your project, there are 3 main steps
 ![example 3](/imgs/example3.png)
 
 **Bonus 1: Batch create split alpha texture**
+
 You can actually select several textures and/or folders then choose `USplitAlpha>Apply`. This will create split alpha textures for all of the `png` files in all subfolders recursively.
 
 **Bonus 2: Revert split alpha textures**
+
 You can actually select several textures and/or folders then choose `USplitAlpha>Revert` to revert the textures to their original settings without split alpha. All of the split alpha textures will be removed and folders `_alpha` as well if they are empty.
 
 **Bonus 3: Create texture Atlas**
+
 I use the plugin `SimpleSpritePacker` to create texture atlas from NPOT sprites. You can also use other external tools such as TexturePacker to create atlases.
 
 **Bonus 4: Loading from AssetBundle**
+
 You can simply put all the textures and materials in AssetBundle and load them from server. Only thing to note is after you load the material, you will have to re-set the shader of the material like so:
 
 ```
@@ -57,11 +61,12 @@ You can simply put all the textures and materials in AssetBundle and load them f
 ```
 
 **Bonus 5: Loading atlas from AssetBundle**
-You cannot put Atlas packed by Unity's SpritePacker and load it back, that's why we have to use manual Atlas. Then, loading sprites from an Atlas loaded from AssetBundle is simple. You can use a solution such as [UBootstrap.SpriteCollection](https://github.com/minhhh/UBootstrap.SpriteCollection) to do this
+
+You cannot put Atlas packed by Unity's SpritePacker and load it back, that's why we have to use manual Atlas. Then, loading sprites by name from an Atlas loaded from AssetBundle is trivial You can use a solution such as [UBootstrap.SpriteCollection](https://github.com/minhhh/UBootstrap.SpriteCollection) to do it.
 
 
 ### Examples
-You can find all examples in scene `Assets/Tests/Test`
+You can find all examples in the scene `Assets/Tests/Test`
 
 1. `Test A with alpha` uses a material with a single sprite texture
 2. `Test B with alpha UI RawImage` uses a material with a raw texture
@@ -70,7 +75,7 @@ You can find all examples in scene `Assets/Tests/Test`
 5. `BatchableSprite 1`, `..2`, etc. is similar to `Batchable UI Image 1`, except that the shader is replaced by `SplitAlpha/Sprites/Default`
 
 ### Support Shaders
-Currently, there are 5 Split Alpha shaders corresponding to 6 original shaders:
+Currently, there are 5 Split Alpha shaders corresponding to 5 original shaders:
 
 1. `UI/Default`: `SplitAlpha/UI/Default`
 1. `Sprites/Default`: `SplitAlpha/Sprites/Default`
@@ -78,13 +83,14 @@ Currently, there are 5 Split Alpha shaders corresponding to 6 original shaders:
 1. `Mobile/Particles/Multiply`: `SplitAlpha/Mobile/Particles/Multiply`
 1. `Mobile/Particles/Alpha Blended`: `SplitAlpha/Mobile/Particles/Alpha Blended`
 
-The code for the ogiginal shaders was taken from Unity then modified to support Split Alpha. Extending SplitAlpha to other shaders is straightforward.
+The code for the ogiginal shaders was taken from Unity then modified to support Split Alpha. Extending SplitAlpha support to other shaders is straightforward.
 
 ## Future Improvements
 
 Obviously, the workflow so far is a little laborious. You have to create split alpha textures by hand, create materials by hand, apply material to UI elements by hand. There are so many improvements that can be made to automate all of these tasks better. In fact, all of these improvements have been implemented and applied to production but I cannot share the code.
 
 **Improvement 1: Automatic material creation**
+
 This is how you implement:
 
 1. Create a lookup table to replace normal shader by a split alpha one. For instance, `UI/Default` will be replaced by `SplitAlpha/UI/Default`, and so on.
@@ -96,6 +102,7 @@ This is how you implement:
 Now you can simply assign sprites to different visual elements, then set all of those sprites to use the same packing tag and voila, all your visual elements can batch and use Split Alpha. However, this approach can NOT work with AssetBundle.
 
 **Improvement 2: Add Helper Component to GameObject automatically**
+
 There is still one manual step that you have to do in **Improvement 1**, that is adding the correct MonoBehaviour to the correct GameObject. We can automate this step like so:
 
 1. Create a tool that allows you to select several objects, prefabs, or scenes, recursively.
@@ -105,10 +112,16 @@ There is still one manual step that you have to do in **Improvement 1**, that is
 Also add a Revert function to revert the change easily.
 
 **Improvement 3: Create Split Alpha material automatically**
+
 Create a tool so that users only have to set the main texture, the alpha texture will be filled in automatically by searching in `_alpha` folder.
 
 **Improvement 4: Reduce the size of Alpha mask**
+
 If the alpha mask of a texture is very simple, for instance, it's mostly white pixels or smooth gradation, then it can be downsized to 1/4 or 1/16 of the area of original texture. Then it can be used by expanding it with a bilinear filter.
+
+**Improvement 5: Make a configuration**
+
+Currently, the compression quality is hard-coded. We should put all configurable parameters in a single ScriptableObject.
 
 ## Install
 
