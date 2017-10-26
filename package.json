@@ -1,6 +1,6 @@
 {
   "name": "USplitAlpha",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "USplitAlpha is a library that helps you apply Split Alpha texture to both Android and iOS easily",
   "main": "index.js",
   "files": [

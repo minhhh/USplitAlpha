@@ -48,8 +48,6 @@ namespace USplitAlpha
                 }
             }
 
-
-
             var filteredObjectPaths = selectedObjectPaths.Where (x => !_IsAlphaTexture (x)).ToList ();
 
             var total = selectedObjectPaths.Count;
@@ -58,10 +56,10 @@ namespace USplitAlpha
                 index++;
                 var progressText = string.Format ("[{0}/{1}] : {2}", index, total, path);
                 if (UnityEditor.EditorUtility.DisplayCancelableProgressBar (
-                    "Applying Alpha", progressText, (float)index / total)) {
+                        "Applying Alpha", progressText, (float)index / total)) {
                     break;
                 }
-                _ApplySplitAlphaToTexture (path, isRevert);
+                ApplySplitAlphaToTexture (path, isRevert);
             }
 
             Resources.UnloadUnusedAssets ();
@@ -69,7 +67,7 @@ namespace USplitAlpha
             UnityEditor.EditorUtility.ClearProgressBar ();
         }
 
-        private static bool _ApplySplitAlphaToTexture (string path, bool isRevert = false)
+        public static bool ApplySplitAlphaToTexture (string path, bool isRevert = false)
         {
             if (string.IsNullOrEmpty (path)) {
                 Debug.LogError (string.Format ("ApplySplitAlphaToTexture: path is null or empty of [{0}]", path));
@@ -93,7 +91,7 @@ namespace USplitAlpha
 
         private static bool _IsAlphaTexture (string path)
         {
-            string directoryName = System.IO.Path.GetDirectoryName (path);
+            string directoryName = Path.GetDirectoryName (path);
             if (!directoryName.EndsWith ("/" + AlphaFolderSuffix)) {
                 return false;
             }
@@ -138,7 +136,7 @@ namespace USplitAlpha
                         _SetTrueColorFormat (importer);
                     }
                 } else {
-                    _DeleteAlphaTexture (_GetAlphaPath (importer.assetPath));
+                    _DeleteAlphaTexture (GetAlphaTextureFilePath (importer.assetPath));
                 }
             }
         }
@@ -160,16 +158,25 @@ namespace USplitAlpha
                 return null;
             }
 
-            string savedPath = _GetAlphaPath (textureImporter.assetPath);
+            string savedPath = GetAlphaTextureFilePath (textureImporter.assetPath);
             Texture2D alphaTexture = _CreateRawAlphaTexture (texture);
             _SaveAlphaTexture (alphaTexture, savedPath);
 
             return alphaTexture;
         }
 
-        private static string _GetAlphaPath (string assetPath)
+        public static string GetAlphaTextureFilePath (string assetPath)
         {
             string sourcePath = assetPath.Replace (AssetsDir, Application.dataPath);
+            string sourceDirPath = Path.GetDirectoryName (sourcePath);
+            string sourceFileName = Path.GetFileNameWithoutExtension (sourcePath);
+            string alphaFileName = sourceFileName + PNGSuffix;
+            return Path.Combine (Path.Combine (sourceDirPath, AlphaFolderSuffix), alphaFileName);
+        }
+
+        public static string GetAlphaTextureAssetPath (string assetPath)
+        {
+            string sourcePath = assetPath;
             string sourceDirPath = Path.GetDirectoryName (sourcePath);
             string sourceFileName = Path.GetFileNameWithoutExtension (sourcePath);
             string alphaFileName = sourceFileName + PNGSuffix;
@@ -227,10 +234,16 @@ namespace USplitAlpha
             platformTextureSettings = textureImporter.GetDefaultPlatformTextureSettings ();
             platformTextureSettings.format = TextureImporterFormat.RGBA32;
             platformTextureSettings.overridden = true;
+
             textureImporter.SetPlatformTextureSettings (platformTextureSettings);
 
             textureImporter.alphaSource = TextureImporterAlphaSource.FromInput;
+            textureImporter.normalmap = false;
+            textureImporter.lightmap = false;
+            textureImporter.maxTextureSize = 2048;
+            textureImporter.generateCubemap = TextureImporterGenerateCubemap.None;
             textureImporter.npotScale = TextureImporterNPOTScale.None;
+            textureImporter.mipmapEnabled = false;
         }
 
         public static void _SetIOSAndAndroidRGB4 (TextureImporter textureImporter, TextureCompressionQuality compressionQuality)
