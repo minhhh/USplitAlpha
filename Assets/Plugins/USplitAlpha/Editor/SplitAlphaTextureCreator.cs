@@ -14,7 +14,9 @@ namespace USplitAlpha
 
 
         private static readonly string PNGSuffix = ".png";
+        private static readonly string MatSuffix = ".mat";
         private static readonly string StarPng = "*.png";
+        private static readonly string StarMat = "*.mat";
         private static readonly string AssetsDir = "Assets";
         private static readonly string Android = "Android";
         private static readonly string iPhone = "iPhone";
@@ -43,7 +45,8 @@ namespace USplitAlpha
                 var assetPath = AssetDatabase.GUIDToAssetPath (assetGUID);
                 if (AssetDatabase.IsValidFolder (assetPath)) {
                     selectedObjectPaths.UnionWith (Directory.GetFiles (assetPath, StarPng, SearchOption.AllDirectories));
-                } else if (assetPath.EndsWith (PNGSuffix)) {
+                    selectedObjectPaths.UnionWith (Directory.GetFiles (assetPath, StarMat, SearchOption.AllDirectories));
+                } else if (assetPath.EndsWith (PNGSuffix) || assetPath.EndsWith (MatSuffix)) {
                     selectedObjectPaths.Add (assetPath);
                 }
             }
@@ -55,16 +58,40 @@ namespace USplitAlpha
             foreach (var path in selectedObjectPaths) {
                 index++;
                 var progressText = string.Format ("[{0}/{1}] : {2}", index, total, path);
-                if (UnityEditor.EditorUtility.DisplayCancelableProgressBar (
+                if (EditorUtility.DisplayCancelableProgressBar (
                         "Applying Alpha", progressText, (float)index / total)) {
                     break;
                 }
-                ApplySplitAlphaToTexture (path, isRevert);
+                if (path.EndsWith (PNGSuffix)) {
+                    ApplySplitAlphaToTexture (path, isRevert);
+                } else {
+                    ApplySplitAlphaToMaterial (path, isRevert);
+                }
+
             }
 
             Resources.UnloadUnusedAssets ();
             AssetDatabase.Refresh ();
             UnityEditor.EditorUtility.ClearProgressBar ();
+        }
+
+        public static bool ApplySplitAlphaToMaterial (string path, bool isRevert = false)
+        {
+            if (string.IsNullOrEmpty (path)) {
+                Debug.LogError (string.Format ("ApplySplitAlphaToMaterial: path is null or empty of [{0}]", path));
+                return false;
+            }
+
+            Material m = AssetDatabase.LoadAssetAtPath <Material> (path);
+
+            if (m == null) {
+                Debug.LogError (string.Format ("ApplySplitAlphaToMaterial: Material is null or empty of [{0}]", path));
+                return false;
+            }
+
+            SplitAlphaReplacer.Apply (m);
+
+            return true;
         }
 
         public static bool ApplySplitAlphaToTexture (string path, bool isRevert = false)
@@ -238,8 +265,6 @@ namespace USplitAlpha
             textureImporter.SetPlatformTextureSettings (platformTextureSettings);
 
             textureImporter.alphaSource = TextureImporterAlphaSource.FromInput;
-            textureImporter.normalmap = false;
-            textureImporter.lightmap = false;
             textureImporter.maxTextureSize = 2048;
             textureImporter.generateCubemap = TextureImporterGenerateCubemap.None;
             textureImporter.npotScale = TextureImporterNPOTScale.None;

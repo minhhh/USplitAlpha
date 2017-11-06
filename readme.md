@@ -134,6 +134,10 @@ To include USplitAlpha into your project, you can copy `Assets/Plugins/USplitAlp
 
 ## Changelog
 
+**0.0.4**
+
+* Add Apply function for Material
+
 **0.0.3**
 
 * Add `SplitAlphaReplacer` for Material
