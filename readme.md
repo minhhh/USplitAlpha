@@ -64,6 +64,11 @@ You can simply put all the textures and materials in AssetBundle and load them f
 
 You cannot put Atlas packed by Unity's SpritePacker and load it back, that's why we have to use manual Atlas. Then, loading sprites by name from an Atlas loaded from AssetBundle is trivial You can use a solution such as [UBootstrap.SpriteCollection](https://github.com/minhhh/UBootstrap.SpriteCollection) to do it.
 
+### Create SplitAlpha Materials
+
+1. Select one or more Textures in the **Project** view
+2. Right click and select `USplitAlpha > Create ... Materials`
+3. You can create 3 basic particle materials: Additive, Alpha Blended and Multiply or SpriteDefault, or UIDefault
 
 ### Examples
 You can find all examples in the scene `Assets/Tests/Test`
@@ -121,7 +126,7 @@ Also add a Revert function to revert the change easily.
 
 **Improvement 5: Create Split Alpha material automatically**
 
-Create a tool so that users only have to set the main texture, the alpha texture will be filled in automatically by searching in `_alpha` folder.
+Create a tool so that users only have to set the main texture, the alpha texture will be filled in automatically by searching in `_alpha` folder. This is DONE.
 
 **Improvement 6: Reduce the size of Alpha mask**
 
@@ -133,6 +138,10 @@ If the alpha mask of a texture is very simple, for instance, it's mostly white p
 To include USplitAlpha into your project, you can copy `Assets/Plugins/USplitAlpha` to your project folder. Alternatively, you can use `npm` method of package management described [here](https://github.com/minhhh/UBootstrap).
 
 ## Changelog
+
+**0.0.5**
+
+* Add create materials from selected textures
 
 **0.0.4**
 
